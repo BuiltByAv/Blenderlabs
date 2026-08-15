@@ -1,0 +1,21 @@
+# Blender
+*.blend
+*.blend[0-9]
+*.blend[0-9][0-9]
+
+# Renders / output
+/renders/
+/output/
+*.exr
+*.png
+*.jpg
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store
