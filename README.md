@@ -36,25 +36,47 @@ pick up the edit.
 
 ### Pillow
 
-Concentric quad rings from the centre button out to the seam. The seam loop is
+A quad grid mapped onto a superellipse footprint. The grid's boundary loop is
 shared between the top and bottom halves, so the mesh is closed, manifold, and
 the seam is **planar** - trim or piping added later follows a flat ring instead
 of cutting through at an angle.
 
-The button is part of the same mesh: the innermost ring extruded up and
-tapered, capped with one n-gon. One object, no loose parts.
+Supports **1, 3 or 5 buttons**: centre, a row along X, or a quincunx.
 
-At defaults: 312 verts, 290 faces - **288 quads, 0 triangles, 0 non-manifold
-edges**, and the only 2 n-gons are the button caps.
+Tufting is a height field - a puff profile falling to zero at the seam,
+multiplied by a Gaussian dimple per button. Dimples combine as a smooth union
+(`1 - prod(1 - g)`) rather than by nearest-button distance; nearest-distance is
+non-differentiable where two buttons are equidistant and leaves visible Voronoi
+ridges between them.
+
+A grid is used rather than concentric rings because rings can only resolve a
+dimple at the centre - an off-centre button falls between loops and reads as a
+lumpy dent.
+
+Buttons are separate closed islands inside the same mesh object, sunk into
+their dimples. That keeps them circular at any grid resolution and
+independently selectable (hover, press <kbd>L</kbd>).
+
+| Buttons | Verts | Faces | Quads | Tris | Islands |
+|---|---|---|---|---|---|
+| 1 | 850 | 828 | 824 | 0 | 3 |
+| 3 | 946 | 884 | 872 | 0 | 7 |
+| 5 | 1042 | 940 | 920 | 0 | 11 |
+
+Zero non-manifold edges in every case. Islands are the body plus two buttons
+per anchor (top and bottom); n-gons are the button caps only.
 
 | Parameter | Default | Notes |
 |---|---|---|
 | Width / Depth | 0.60 | Footprint; make them unequal for a rectangle |
 | Puff | 0.105 | Height above the seam plane |
 | Squareness | 4.0 | 2 = round cushion, 4 = rounded square, 8+ = nearly sharp |
-| Segments / Rings | 24 / 5 | Angular and radial resolution |
-| Tuft Depth / Spread | 0.55 / 0.30 | Centre dimple |
+| Resolution | 21 | Grid divisions; forced odd so a centred button lands on a vertex |
+| Tuft Depth / Spread | 0.55 / 0.30 | Dimple depth and reach |
+| Buttons | 1 | `1` centre, `3` row along X, `5` quincunx |
+| Button Spread | 0.45 | How far outer buttons sit from centre (ignored when Buttons = 1) |
 | Button Radius / Height / Taper | 0.055 / 0.011 / 0.86 | |
+| Button Segments | 12 | Raise for rounder buttons |
 | Origin | Bottom | `Bottom` sits on a surface by setting z; `Center` is symmetric |
 
 ## Conventions for new generators

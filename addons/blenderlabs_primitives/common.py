@@ -58,14 +58,32 @@ def apply_shading(bm, smooth, angle):
             e.smooth = False
 
 
-def ring(bm, segments, radius_fn, z):
+def ring(bm, segments, radius_fn, z, center=(0.0, 0.0)):
     """Create one closed loop of verts. `radius_fn(theta)` gives the radius."""
     verts = []
+    cx, cy = center
     for i in range(segments):
         th = i / segments * 2.0 * math.pi
         r = radius_fn(th)
-        verts.append(bm.verts.new((math.cos(th) * r, math.sin(th) * r, z)))
+        verts.append(bm.verts.new((cx + math.cos(th) * r,
+                                   cy + math.sin(th) * r, z)))
     return verts
+
+
+def square_to_superellipse(u, v, a, b, n):
+    """Map the unit square [-1,1]^2 onto a superellipse footprint.
+
+    Returns (x, y, t) where t = max(|u|,|v|) is 0 at the centre and exactly 1
+    on the boundary, so contours of t are scaled copies of the outline. The
+    square's edge lands precisely on the superellipse, which is what keeps the
+    seam planar and the outline clean.
+    """
+    t = max(abs(u), abs(v))
+    if t == 0.0:
+        return 0.0, 0.0, 0.0
+    rho = (abs(u) ** n + abs(v) ** n) ** (1.0 / n)
+    f = t / rho
+    return u * f * a, v * f * b, t
 
 
 def bridge(bm, lo, hi, flip=False):

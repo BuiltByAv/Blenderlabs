@@ -50,12 +50,11 @@ class MESH_OT_blenderlabs_pillow(bpy.types.Operator, AddObjectHelper):
         name="Puff", description="Height above the seam plane",
         default=0.105, min=0.001, soft_max=0.5, unit='LENGTH')
 
-    segments: IntProperty(
-        name="Segments", description="Angular resolution",
-        default=24, min=6, soft_max=96)
-    rings: IntProperty(
-        name="Rings", description="Radial loops between button and seam",
-        default=5, min=1, soft_max=24)
+    resolution: IntProperty(
+        name="Resolution",
+        description="Grid divisions across the pillow. Forced odd so a centred "
+                    "button lands on a vertex. Raise it if dimples look faceted",
+        default=21, min=5, soft_max=81)
 
     squareness: FloatProperty(
         name="Squareness",
@@ -69,8 +68,23 @@ class MESH_OT_blenderlabs_pillow(bpy.types.Operator, AddObjectHelper):
         name="Tuft Spread", description="How far the dimple reaches out",
         default=0.30, min=0.05, max=1.0)
 
+    buttons: EnumProperty(
+        name="Buttons",
+        items=[
+            ('1', "1 - Centre", "A single button at the centre"),
+            ('3', "3 - Row", "Three buttons in a row along X"),
+            ('5', "5 - Quincunx", "Centre plus four on the diagonals"),
+        ],
+        default='1')
+    button_spread: FloatProperty(
+        name="Button Spread",
+        description="How far the outer buttons sit from the centre",
+        default=0.45, min=0.0, max=0.95)
+
     button_radius: FloatProperty(
         name="Button Radius", default=0.055, min=0.001, soft_max=0.3, unit='LENGTH')
+    button_segments: IntProperty(
+        name="Button Segments", default=12, min=3, soft_max=48)
     button_height: FloatProperty(
         name="Button Height", default=0.011, min=0.0, soft_max=0.1, unit='LENGTH')
     button_taper: FloatProperty(
@@ -102,17 +116,23 @@ class MESH_OT_blenderlabs_pillow(bpy.types.Operator, AddObjectHelper):
         col.prop(self, "squareness")
 
         col = layout.column(align=True)
-        col.prop(self, "segments")
-        col.prop(self, "rings")
+        col.prop(self, "resolution")
 
         col = layout.column(align=True)
         col.prop(self, "tuft")
         col.prop(self, "tuft_width")
 
         col = layout.column(align=True)
+        col.prop(self, "buttons")
+        sub = col.column()
+        sub.active = self.buttons != '1'
+        sub.prop(self, "button_spread")
+
+        col = layout.column(align=True)
         col.prop(self, "button_radius")
         col.prop(self, "button_height")
         col.prop(self, "button_taper")
+        col.prop(self, "button_segments")
 
         col = layout.column(align=True)
         col.prop(self, "origin_mode")
@@ -132,11 +152,13 @@ class MESH_OT_blenderlabs_pillow(bpy.types.Operator, AddObjectHelper):
             width=self.width,
             depth=self.depth,
             half_thickness=self.half_thickness,
-            segments=self.segments,
-            rings=self.rings,
+            resolution=self.resolution,
+            buttons=self.buttons,
+            button_spread=self.button_spread,
             button_radius=self.button_radius,
             button_height=self.button_height,
             button_taper=self.button_taper,
+            button_segments=self.button_segments,
             squareness=self.squareness,
             tuft=self.tuft,
             tuft_width=self.tuft_width,
