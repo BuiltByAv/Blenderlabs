@@ -120,7 +120,8 @@ operator to `__init__.py`, list it in `CLASSES`, and add a line to `menu_func`.
 
 ## Note
 
-`addon.py` at the repo root is a vendored copy of the
-[blender-mcp](https://github.com/ahujasid/blender-mcp) add-on. It is **not** the
-copy Blender runs - installing it copied it to Blender's own `scripts/addons/`
-directory, so editing the file here has no effect.
+These generators are driven through [blender-mcp](https://github.com/ahujasid/blender-mcp),
+which is installed separately - its `addon.py` goes through Blender's own
+Install from Disk, which copies it into `scripts/addons/`. It is deliberately
+not vendored here: Blender would run its own copy regardless, so a copy in this
+repo could only ever go stale.
