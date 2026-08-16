@@ -54,7 +54,7 @@ class MESH_OT_blenderlabs_pillow(bpy.types.Operator, AddObjectHelper):
         name="Resolution",
         description="Grid divisions across the pillow. Forced odd so a centred "
                     "button lands on a vertex. Raise it if dimples look faceted",
-        default=21, min=5, soft_max=81)
+        default=15, min=5, soft_max=81)
 
     squareness: FloatProperty(
         name="Squareness",
@@ -84,7 +84,7 @@ class MESH_OT_blenderlabs_pillow(bpy.types.Operator, AddObjectHelper):
     button_radius: FloatProperty(
         name="Button Radius", default=0.055, min=0.001, soft_max=0.3, unit='LENGTH')
     button_segments: IntProperty(
-        name="Button Segments", default=12, min=3, soft_max=48)
+        name="Button Segments", default=10, min=3, soft_max=48)
     button_height: FloatProperty(
         name="Button Height", default=0.011, min=0.0, soft_max=0.1, unit='LENGTH')
     button_taper: FloatProperty(

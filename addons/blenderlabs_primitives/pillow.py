@@ -35,7 +35,7 @@ def build(name="Pillow",
           width=0.60,
           depth=0.60,
           half_thickness=0.105,
-          resolution=21,
+          resolution=15,
           squareness=4.0,
           tuft=0.55,
           tuft_width=0.30,
@@ -44,7 +44,7 @@ def build(name="Pillow",
           button_radius=0.055,
           button_height=0.011,
           button_taper=0.86,
-          button_segments=12,
+          button_segments=10,
           origin='BOTTOM',
           smooth=True,
           smooth_angle=math.radians(50.0)):
@@ -62,10 +62,19 @@ def build(name="Pillow",
     res = max(res, 5)
 
     # --- button anchor points, in world XY, with their surface parameter ---
+    # Snap anchors onto grid vertices in domain space. A dimple centred between
+    # grid lines gets sampled off its peak, so the dip lands shallow and skewed
+    # and the button sits crooked in it - the artefact that otherwise forces a
+    # high resolution. Snapping lets a much coarser grid hold up.
+    step = 2.0 / (res - 1)
+
+    def snap(c):
+        return round(c / step) * step
+
     anchors = []
     for nu, nv in LAYOUTS.get(str(buttons), LAYOUTS['1']):
         bx, by, bt = common.square_to_superellipse(
-            nu * button_spread, nv * button_spread, a, b, n)
+            snap(nu * button_spread), snap(nv * button_spread), a, b, n)
         anchors.append((bx, by, bt))
 
     sigma = max(tuft_width * min(a, b), 1e-6)

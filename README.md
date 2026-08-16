@@ -57,26 +57,37 @@ Buttons are separate closed islands inside the same mesh object, sunk into
 their dimples. That keeps them circular at any grid resolution and
 independently selectable (hover, press <kbd>L</kbd>).
 
+Button anchors are **snapped onto grid vertices**. A dimple centred between grid
+lines is sampled off its peak, so the dip lands shallow and skewed and the
+button sits crooked in it. Snapping is what lets the default grid stay coarse -
+without it the same quality needs roughly double the polygons.
+
+At default settings:
+
 | Buttons | Verts | Faces | Quads | Tris | Islands |
 |---|---|---|---|---|---|
-| 1 | 850 | 828 | 824 | 0 | 3 |
-| 3 | 946 | 884 | 872 | 0 | 7 |
-| 5 | 1042 | 940 | 920 | 0 | 11 |
+| 1 | 434 | 416 | 412 | 0 | 3 |
+| 3 | 514 | 464 | 452 | 0 | 7 |
+| 5 | 594 | 512 | 492 | 0 | 11 |
 
 Zero non-manifold edges in every case. Islands are the body plus two buttons
 per anchor (top and bottom); n-gons are the button caps only.
+
+Grid cost is `2 x (Resolution - 1)^2`, which dominates the total. For a leaner
+mesh, Resolution 11 with Button Segments 8 gives 300 faces for 5 buttons -
+buttons start reading as visibly octagonal below about 10 segments.
 
 | Parameter | Default | Notes |
 |---|---|---|
 | Width / Depth | 0.60 | Footprint; make them unequal for a rectangle |
 | Puff | 0.105 | Height above the seam plane |
 | Squareness | 4.0 | 2 = round cushion, 4 = rounded square, 8+ = nearly sharp |
-| Resolution | 21 | Grid divisions; forced odd so a centred button lands on a vertex |
+| Resolution | 15 | Grid divisions; forced odd so a centred button lands on a vertex |
 | Tuft Depth / Spread | 0.55 / 0.30 | Dimple depth and reach |
 | Buttons | 1 | `1` centre, `3` row along X, `5` quincunx |
 | Button Spread | 0.45 | How far outer buttons sit from centre (ignored when Buttons = 1) |
 | Button Radius / Height / Taper | 0.055 / 0.011 / 0.86 | |
-| Button Segments | 12 | Raise for rounder buttons |
+| Button Segments | 10 | Raise for rounder buttons; below ~10 they read as octagonal |
 | Origin | Bottom | `Bottom` sits on a surface by setting z; `Center` is symmetric |
 
 ## Conventions for new generators
