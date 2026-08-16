@@ -53,9 +53,16 @@ A grid is used rather than concentric rings because rings can only resolve a
 dimple at the centre - an off-centre button falls between loops and reads as a
 lumpy dent.
 
-Buttons are separate closed islands inside the same mesh object, sunk into
+Buttons are separate closed islands inside the same mesh object, seated in
 their dimples. That keeps them circular at any grid resolution and
 independently selectable (hover, press <kbd>L</kbd>).
+
+A button's face is placed relative to the **highest surrounding surface point**,
+not to the dimple's low point. Off-centre buttons sit in a *tilted* dimple - the
+puff profile is higher toward the pillow's centre than toward the seam, giving a
+rim spread of ~18 mm against the centre button's 0.6 mm - so seating them on the
+anchor buried them unevenly and they read as partly swallowed from directly
+above. Measuring from the rim makes every button sit identically.
 
 Button anchors are **snapped onto grid vertices**. A dimple centred between grid
 lines is sampled off its peak, so the dip lands shallow and skewed and the

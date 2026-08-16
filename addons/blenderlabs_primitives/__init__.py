@@ -86,7 +86,11 @@ class MESH_OT_blenderlabs_pillow(bpy.types.Operator, AddObjectHelper):
     button_segments: IntProperty(
         name="Button Segments", default=10, min=3, soft_max=48)
     button_height: FloatProperty(
-        name="Button Height", default=0.011, min=0.0, soft_max=0.1, unit='LENGTH')
+        name="Button Height",
+        description="How far the button face clears the surrounding dimple rim. "
+                    "Measured from the rim, not the anchor, so off-centre "
+                    "buttons sit the same as the middle one",
+        default=0.011, min=0.0, soft_max=0.1, unit='LENGTH')
     button_taper: FloatProperty(
         name="Button Taper", description="Top radius as a fraction of the base",
         default=0.86, min=0.05, max=1.0)

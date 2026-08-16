@@ -73,15 +73,25 @@ def build(name="Pillow",
 
     anchors = []
     for nu, nv in LAYOUTS.get(str(buttons), LAYOUTS['1']):
-        bx, by, bt = common.square_to_superellipse(
+        bx, by, _ = common.square_to_superellipse(
             snap(nu * button_spread), snap(nv * button_spread), a, b, n)
-        anchors.append((bx, by, bt))
+        anchors.append((bx, by))
 
     sigma = max(tuft_width * min(a, b), 1e-6)
-
     inv_s2 = 1.0 / (sigma * sigma)
+    inv_n = 1.0 / n
 
-    def height(x, y, t):
+    def surface_t(x, y):
+        """Outline parameter at any world point: 0 at centre, 1 at the seam.
+
+        The mapping is homogeneous, so this is just the superellipse norm -
+        which means height() can be evaluated anywhere, not only at grid nodes.
+        Clamped because cos(t*pi/2) goes negative past the seam and a negative
+        base to a fractional power is not a real number.
+        """
+        return min(max((abs(x / a) ** n + abs(y / b) ** n) ** inv_n, 0.0), 1.0)
+
+    def height(x, y):
         """Surface height: puff profile, pulled down by every button.
 
         The dimples combine as a smooth union - 1 - prod(1 - g_i) - rather than
@@ -90,11 +100,11 @@ def build(name="Pillow",
         visible Voronoi ridges between them. This form is smooth everywhere and
         still bounded to [0, 1] however many buttons overlap.
         """
-        puff = half_thickness * math.cos(t * math.pi / 2.0) ** 0.75
+        puff = half_thickness * math.cos(surface_t(x, y) * math.pi / 2.0) ** 0.75
         if tuft <= 0.0 or not anchors:
             return puff
         keep = 1.0
-        for bx, by, _ in anchors:
+        for bx, by in anchors:
             g = math.exp(-((x - bx) ** 2 + (y - by) ** 2) * inv_s2)
             keep *= (1.0 - g)
         return puff * (1.0 - tuft * (1.0 - keep))
@@ -113,8 +123,8 @@ def build(name="Pillow",
                 if side == -1 and on_edge:
                     g[i][j] = grids[1][i][j]          # share the seam
                     continue
-                x, y, t = common.square_to_superellipse(u, v, a, b, n)
-                z = 0.0 if on_edge else side * height(x, y, t)
+                x, y, _ = common.square_to_superellipse(u, v, a, b, n)
+                z = 0.0 if on_edge else side * height(x, y)
                 g[i][j] = bm.verts.new((x, y, z))
         grids[side] = g
 
@@ -125,17 +135,25 @@ def build(name="Pillow",
                 f = [g[i][j], g[i + 1][j], g[i + 1][j + 1], g[i][j + 1]]
                 bm.faces.new(f[::-1] if side == -1 else f)
 
-    # --- buttons: closed discs sunk into each dimple ---
-    for bx, by, bt in anchors:
-        z_seat = height(bx, by, bt)
+    # --- buttons: closed discs seated in each dimple ---
+    # The button face is placed relative to the HIGHEST surrounding surface
+    # point, not to the seat at the anchor. Off-centre buttons sit in a tilted
+    # dimple - the puff profile is higher toward the pillow's centre than
+    # toward the seam - so seating them on the anchor buried them unevenly and
+    # they read as partly swallowed when viewed top down.
+    for bx, by in anchors:
+        rim = [height(bx + button_radius * math.cos(th),
+                      by + button_radius * math.sin(th))
+               for th in (i / 24.0 * 2.0 * math.pi for i in range(24))]
+        z_top = max(rim) + button_height
+        z_base = min(min(rim), height(bx, by)) - 0.006     # buried under the dip
         for side in (1, -1):
             flip = side == -1
             base = common.ring(bm, button_segments, lambda th: button_radius,
-                               side * (z_seat - 0.004), center=(bx, by))
+                               side * z_base, center=(bx, by))
             top = common.ring(bm, button_segments,
                               lambda th: button_radius * button_taper,
-                              side * (z_seat - 0.004 + button_height),
-                              center=(bx, by))
+                              side * z_top, center=(bx, by))
             common.bridge(bm, base, top, flip)
             bm.faces.new(top[::-1] if flip else top)
             bm.faces.new(base if flip else base[::-1])
