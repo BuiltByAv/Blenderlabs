@@ -93,7 +93,7 @@ buttons start reading as visibly octagonal below about 10 segments.
 | Tuft Depth / Spread | 0.55 / 0.30 | Dimple depth and reach |
 | Buttons | 1 | `1` centre, `3` row along X, `5` quincunx |
 | Button Spread | 0.45 | How far outer buttons sit from centre (ignored when Buttons = 1) |
-| Button Radius / Height / Taper | 0.055 / 0.011 / 0.86 | |
+| Button Radius / Height / Taper | 0.030 / 0.006 / 0.86 | Height is clearance above the dimple rim, not the anchor |
 | Button Segments | 10 | Raise for rounder buttons; below ~10 they read as octagonal |
 | Origin | Bottom | `Bottom` sits on a surface by setting z; `Center` is symmetric |
 
